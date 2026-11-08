@@ -9,7 +9,6 @@ import { LEVELS } from '../data/levels'
 import { colorOf } from '../data/languages'
 import { CodePanel } from '../components/CodePanel'
 import { Controls } from '../components/Controls'
-import { StarButton } from '../components/StarButton'
 import { LessonVisual } from '../components/LessonVisual'
 import { STEP_MS, useStepper } from '../useStepper'
 import { href } from '../router'
@@ -67,7 +66,6 @@ export function LessonPage({ language, item }: { language: Language; item: Item 
       />
 
       <div className="item-actions">
-        <StarButton weakKey={`${language.id}/${item.id}`} />
         {item.quiz && (
           <a className="quiz-link" href={href(language.id, item.id, 'test')}>
             ✎ この項目のテスト

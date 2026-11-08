@@ -9,46 +9,47 @@ import { LangSymbol } from '../components/LangSymbol'
 import { href } from '../router'
 
 export function LanguageSelect({ languages }: { languages: Language[] }) {
+  // カードの通し番号。チャレンジの選択肢と同じように、1枚ずつ順番に現れるための番号
+  let cardNo = 0
   return (
     <main className="page">
-      <a className="back" href={href()}>
-        ‹ トップ
-      </a>
+      {/* 中身全体が右から滑り込み、その中でカードが1枚ずつ現れる(チャレンジと同じ動き) */}
+      <div className="enter-slide stack">
+        <header className="hero">
+          <h1>学ぶ</h1>
+          <p className="lead">言語を選んでください。</p>
+        </header>
 
-      <header className="hero">
-        <h1>学ぶ</h1>
-        <p className="lead">言語を選んでください。</p>
-      </header>
+        {GROUPS.map((group) => {
+          const inGroup = languages.filter((l) => l.group === group.id)
+          if (inGroup.length === 0) return null
+          return (
+            <section key={group.id} className="group" style={{ '--c': group.color } as CSSProperties}>
+              <h2 className="group-head">{group.label}</h2>
 
-      {GROUPS.map((group) => {
-        const inGroup = languages.filter((l) => l.group === group.id)
-        if (inGroup.length === 0) return null
-        return (
-          <section key={group.id} className="group" style={{ '--c': group.color } as CSSProperties}>
-            <h2 className="group-head">{group.label}</h2>
-
-            {KINDS.map((kind) => {
-              const list = inGroup.filter((l) => l.kind === kind.id)
-              if (list.length === 0) return null
-              return (
-                <div key={kind.id} className="kind">
-                  <h3 className="kind-head">
-                    <span aria-hidden="true">{'</>'}</span>
-                    {kind.label}
-                  </h3>
-                  <ul className="lang-list">
-                    {list.map((lang) => (
-                      <li key={lang.id}>
-                        <LanguageCard lang={lang} />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            })}
-          </section>
-        )
-      })}
+              {KINDS.map((kind) => {
+                const list = inGroup.filter((l) => l.kind === kind.id)
+                if (list.length === 0) return null
+                return (
+                  <div key={kind.id} className="kind">
+                    <h3 className="kind-head">
+                      <span aria-hidden="true">{'</>'}</span>
+                      {kind.label}
+                    </h3>
+                    <ul className="lang-list">
+                      {list.map((lang) => (
+                        <li key={lang.id} className="enter-rise" style={{ '--i': cardNo++ } as CSSProperties}>
+                          <LanguageCard lang={lang} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              })}
+            </section>
+          )
+        })}
+      </div>
     </main>
   )
 }

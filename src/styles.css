@@ -7,6 +7,8 @@
 :root {
   color-scheme: light dark;
 
+  --ease: cubic-bezier(0.32, 0.72, 0, 1); /* iOS のような、ゆるやかに止まる動き */
+  --tabbar-h: 52px; /* 画面上のタブバーの高さ */
   --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Hiragino Sans',
     'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
   --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
@@ -122,10 +124,11 @@ body {
   max-width: 600px;
   margin: 0 auto;
   padding: 28px 16px 0;
-  min-height: 100dvh;
+  min-height: calc(100dvh - var(--tabbar-h));
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow-x: clip; /* 滑り込みのアニメーション中に、横スクロールバーが出ないように(clip なら、固定の操作バーは、そのまま動く) */
 }
 
 /* ---- 1. タイトル ---- */
@@ -645,11 +648,7 @@ a {
   border-radius: 18px;
   background: color-mix(in srgb, var(--c) 4%, transparent);
   overflow: hidden;
-  animation: fade-up 0.35s ease-out both;
 }
-.group:nth-of-type(2) { animation-delay: 0.05s; }
-.group:nth-of-type(3) { animation-delay: 0.1s; }
-.group:nth-of-type(n + 4) { animation-delay: 0.15s; }
 .group-head {
   margin: 0;
   padding: 12px 16px;
@@ -826,7 +825,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  animation: fade-up 0.3s ease-out both;
 }
 .level-head {
   display: flex;
@@ -1118,15 +1116,6 @@ a.item-card:active {
 .chain-arrow {
   color: var(--muted);
 }
-
-/* =========================================================
-   トップ・苦手リスト・テスト
-   ========================================================= */
-.home-meta {
-  margin-top: 2px;
-  font-size: 12px;
-  color: var(--c);
-}
 .empty {
   margin: 8px 0;
   padding: 24px 16px;
@@ -1137,17 +1126,13 @@ a.item-card:active {
   line-height: 1.9;
   color: var(--muted);
 }
-.empty-link {
-  color: var(--api);
-}
 
-/* 項目ページの下にあるボタン行(★・テスト) */
+/* 項目ページの下にあるボタン行(テスト) */
 .item-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.star-btn,
 .quiz-link {
   display: inline-flex;
   align-items: center;
@@ -1165,77 +1150,19 @@ a.item-card:active {
     border-color 0.2s,
     color 0.2s;
 }
-.star-btn:hover,
 .quiz-link:hover {
   background: var(--fill-2);
-}
-.star-btn.is-on {
-  border-color: var(--yellow);
-  background: color-mix(in srgb, var(--yellow) 14%, transparent);
-  color: var(--yellow);
-  font-weight: 700;
 }
 .quiz-link {
   border-color: color-mix(in srgb, var(--tone, var(--api)) 55%, transparent);
   color: var(--tone, var(--api));
 }
-.star-btn:focus-visible,
 .quiz-link:focus-visible,
 .quiz-option:focus-visible,
 .quiz-mode:focus-visible,
 .quiz-next:focus-visible {
   outline: 2px solid var(--api);
   outline-offset: 2px;
-}
-.item-star {
-  color: var(--yellow);
-}
-
-/* 苦手リストのカード */
-.weak-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px 14px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: inset 3px 0 0 var(--c);
-}
-.weak-tags {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-}
-.weak-tag {
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: var(--fill);
-  font-size: 11px;
-  color: var(--muted);
-}
-.weak-tag.is-level {
-  background: color-mix(in srgb, var(--c) 18%, transparent);
-  color: var(--c);
-}
-.weak-actions {
-  display: flex;
-  gap: 8px;
-}
-.weak-actions a,
-.weak-actions button {
-  padding: 6px 14px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--fill-soft);
-  color: var(--text);
-  font: inherit;
-  font-size: 12.5px;
-  cursor: pointer;
-}
-.weak-actions button {
-  margin-left: auto;
-  color: var(--yellow);
 }
 
 /* ---- テスト ---- */
@@ -1276,7 +1203,7 @@ a.item-card:active {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  animation: fade-up 0.35s ease-out both;
+  animation: wz-in-forward 0.5s var(--ease) both;
 }
 .quiz-text {
   margin: 0;
@@ -1453,11 +1380,6 @@ a.item-card:active {
   font-size: 12px;
   color: var(--muted);
 }
-.quiz-hint {
-  margin: 0;
-  font-size: 12.5px;
-  color: var(--muted);
-}
 
 /* =========================================================
    広い画面(タブレット・PC)向けの配置
@@ -1578,25 +1500,6 @@ body {
   font-weight: 700;
 }
 
-/* ---- ブランド(トップ) ---- */
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.brand-icon {
-  flex: none;
-  width: 64px;
-  height: 64px;
-  border-radius: 15px;
-}
-.brand h1 {
-  margin: 0;
-}
-.brand .lead {
-  margin: 4px 0 0;
-}
-
 /* ---- 戻るリンク: iOS のナビゲーション風 ---- */
 .back {
   display: inline-flex;
@@ -1604,11 +1507,12 @@ body {
   gap: 2px;
   margin: -6px 0 -4px -4px;
   padding: 8px 4px;
-  font-size: 17px;
-  color: var(--blue);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text); /* ほかの文字と同じ色 */
 }
 .back:hover {
-  color: var(--blue);
+  color: var(--text);
   opacity: 0.7;
 }
 
@@ -1617,7 +1521,6 @@ body {
 .code,
 .lang-card,
 .item-card,
-.weak-card,
 .quiz-mode,
 .quiz-option,
 .quiz-why,
@@ -1634,15 +1537,13 @@ body {
 }
 .lang-card,
 .item-card,
-.weak-card,
 .quiz-mode,
 .quiz-option,
 .quiz-why,
 .quiz-review li {
   border-radius: 16px;
 }
-.item-card.is-soon,
-.weak-card {
+.item-card.is-soon {
   box-shadow: var(--shadow);
 }
 .lang-card:hover,
@@ -1689,9 +1590,7 @@ a.item-card:hover,
   font-size: 17px;
   font-weight: 600;
   letter-spacing: -0.01em;
-}
-.lang-count small,
-.home-meta {
+}.lang-count small {
   color: var(--c);
 }
 
@@ -1872,19 +1771,13 @@ a.item-card:hover,
   background: color-mix(in srgb, var(--tone) 28%, transparent);
 }
 
-/* ---- ボタン(★・テスト・次へ など) ---- */
-.star-btn,
+/* ---- ボタン(テスト・次へ など) ---- */
 .quiz-link {
   border: none;
   background: var(--fill);
   color: var(--text);
   padding: 9px 16px;
   font-weight: 500;
-}
-.star-btn.is-on {
-  background: color-mix(in srgb, var(--yellow) 16%, transparent);
-  color: var(--yellow);
-  box-shadow: inset 0 0 0 1px var(--yellow);
 }
 .quiz-link {
   background: color-mix(in srgb, var(--tone, var(--blue)) 14%, transparent);
@@ -1894,14 +1787,6 @@ a.item-card:hover,
   background: var(--blue);
   color: #fff;
   padding: 11px 20px;
-}
-.weak-actions a,
-.weak-actions button {
-  border: none;
-  background: var(--fill);
-}
-.weak-tag {
-  background: var(--fill);
 }
 
 /* ---- テスト ---- */
@@ -1943,104 +1828,12 @@ a.item-card:hover,
 .lang-card:focus-visible,
 .item-card:focus-visible,
 .back:focus-visible,
-.star-btn:focus-visible,
 .quiz-link:focus-visible,
 .quiz-option:focus-visible,
 .quiz-mode:focus-visible,
 .quiz-next:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--blue) 55%, transparent);
   outline-offset: 2px;
-}
-
-/* =========================================================
-   チャレンジ(解放式の穴埋め・説明テスト)
-   ========================================================= */
-.item-done {
-  color: var(--green);
-  font-weight: 700;
-}
-.ch-list {
-  gap: 12px;
-}
-.ch-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 16px;
-  background: var(--panel);
-  box-shadow: var(--shadow);
-}
-.ch-top {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.ch-state {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-}
-.ch-state .symbol {
-  width: 15px;
-  height: 15px;
-}
-.ch-state.is-open {
-  color: var(--green);
-}
-.ch-card.is-locked .lang-mark {
-  opacity: 0.5;
-}
-.progress {
-  height: 6px;
-  border-radius: 999px;
-  background: var(--fill);
-  overflow: hidden;
-}
-.progress span {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--c);
-  transition: width 0.5s ease;
-}
-.ch-hint {
-  margin: 0;
-  font-size: 13px;
-  color: var(--muted);
-}
-.ch-hint a {
-  color: var(--blue);
-}
-.ch-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.ch-actions a {
-  flex: 1 1 160px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--c) 14%, transparent);
-  color: var(--text);
-  font-weight: 600;
-  font-size: 15px;
-  transition: background-color 0.2s;
-}
-.ch-actions a:hover {
-  background: color-mix(in srgb, var(--c) 24%, transparent);
-}
-.ch-actions small {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--muted);
 }
 
 /* 穴埋め(入力) */
@@ -2061,6 +1854,7 @@ a.item-card:hover,
   background: color-mix(in srgb, var(--tone) 26%, transparent);
 }
 .fill-review {
+  overflow-wrap: anywhere; /* 長い文字でも、画面の幅をはみ出さない */
   list-style: none;
   margin: 6px 0 4px;
   padding: 0;
@@ -2098,6 +1892,607 @@ a.item-card:hover,
 }
 .quiz-review-text small a {
   color: var(--blue);
+}
+
+/* =========================================================
+   タブバー(学ぶ / チャレンジ)
+   ========================================================= */
+.tabbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+  backdrop-filter: saturate(180%) blur(22px);
+  border-bottom: 0.5px solid var(--line);
+}
+.tabbar-inner {
+  box-sizing: border-box;
+  max-width: 600px;
+  height: var(--tabbar-h);
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tabbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.tabbar-brand img {
+  border-radius: 7px;
+}
+.tabs {
+  margin-left: auto;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--fill);
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+.tab .symbol {
+  width: 16px;
+  height: 16px;
+}
+.tab:hover {
+  color: var(--text);
+}
+.tab[aria-current='page'] {
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+.tab:focus-visible,
+.tabbar-brand:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--blue) 55%, transparent);
+  outline-offset: 2px;
+}
+@media (max-width: 359px) {
+  .tabbar-brand span {
+    display: none;
+  }
+}
+@media (min-width: 720px) {
+  .tabbar-inner {
+    max-width: 720px;
+  }
+}
+@media (min-width: 1000px) {
+  .tabbar-inner {
+    max-width: 1120px;
+    padding: 0 32px;
+  }
+}
+.quiz-next.start {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+}
+.quiz-next:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.quiz-progress {
+  height: 4px;
+  margin-bottom: 2px;
+  border-radius: 999px;
+  background: var(--fill);
+  overflow: hidden;
+}
+.quiz-progress span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--tone, var(--blue));
+  transition: width 0.4s ease;
+}
+
+/* =========================================================
+   チャレンジの設定ウィザード(質問を1つずつ表示)
+   ========================================================= */
+.wz-eyebrow {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.wz {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition:
+    opacity 0.26s var(--ease),
+    transform 0.26s var(--ease);
+}
+.wz.is-launching {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* 上の「戻る」と、進み具合(5つの区切りが、順に色づく) */
+.wz-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 36px;
+}
+.wz-back {
+  visibility: hidden;
+  padding: 6px 4px;
+  border: none;
+  background: none;
+  color: var(--text); /* ほかの文字と同じ色・同じ大きさ */
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.3s var(--ease),
+    transform 0.3s var(--ease);
+}
+.wz-back.is-on {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+.wz-back:hover {
+  opacity: 0.7;
+}
+.wz-progress {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+}
+.wz-progress span {
+  position: relative;
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--fill);
+  overflow: hidden;
+}
+.wz-progress span::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.55s var(--ease);
+}
+.wz-progress span.is-on::after {
+  transform: scaleX(1);
+}
+
+/* 質問の入れかえ: 新しい質問が滑り込み、前の質問は押し出されて消える(戻るときは逆向き) */
+.wz-stage {
+  display: grid;
+  overflow-x: clip;
+  padding: 4px;
+  margin: -4px;
+}
+.wz-layer {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.wz-layer.is-enter.is-forward {
+  animation: wz-in-forward 0.55s var(--ease) both;
+}
+.wz-layer.is-enter.is-back {
+  animation: wz-in-back 0.55s var(--ease) both;
+}
+.wz-layer.is-leave {
+  pointer-events: none;
+}
+.wz-layer.is-leave.is-forward {
+  animation: wz-out-forward 0.4s var(--ease) both;
+}
+.wz-layer.is-leave.is-back {
+  animation: wz-out-back 0.4s var(--ease) both;
+}
+
+.wz-title {
+  margin: 0;
+  font-size: clamp(26px, 7vw, 32px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  outline: none;
+}
+.wz-sub {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* 選択肢: 順番にふわっと現れる。押すと、少しへこむ。選ぶと、チェックが描かれる */
+.wz-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wz-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.wz-opt {
+  --c: var(--blue); /* 選んだときの色(難易度などは、個別に色がつく) */
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.25s var(--ease),
+    box-shadow 0.25s var(--ease),
+    background-color 0.25s var(--ease);
+  animation: wz-rise 0.6s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 45ms + 120ms);
+}
+.wz-opt:hover:not(:disabled) {
+  background: var(--panel-hover);
+}
+.wz-opt:active:not(:disabled) {
+  transform: scale(0.975);
+}
+.wz-opt:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.wz-opt:focus-visible,
+.wz-row:focus-visible,
+.wz-back:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--blue) 55%, transparent);
+  outline-offset: 2px;
+}
+.wz-opt.is-active {
+  background: color-mix(in srgb, var(--c) 10%, var(--panel));
+  box-shadow: inset 0 0 0 2px var(--c);
+}
+.wz-opt.has-color {
+  background: color-mix(in srgb, var(--c) 6%, var(--panel)); /* 選ぶ前から、色で見分けられる */
+}
+.wz-opt.has-color.is-active {
+  background: color-mix(in srgb, var(--c) 14%, var(--panel));
+}
+.wz-opt.is-tile {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start; /* タイルが違う高さでも、アイコンの位置をそろえる */
+  gap: 10px;
+  min-height: 92px;
+}
+.wz-opt.is-tile .wz-text {
+  flex: none;
+}
+/* スマホ: 先頭の「すべて」は横いっぱい。残りは2列 */
+.wz-opt.is-wide {
+  grid-column: 1 / -1;
+}
+/* 少し広い画面: 範囲は3列(すべて + 8カテゴリ = 9個で、ちょうど3×3) */
+@media (min-width: 560px) {
+  .wz-grid.is-scope {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .wz-opt.is-wide {
+    grid-column: auto;
+  }
+}
+.wz-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wz-text {
+  word-break: auto-phrase; /* 文節の区切りで折り返す(対応していないブラウザでは、ふつうの折り返し) */
+}
+.wz-text b {
+  font-size: 16px;
+  font-weight: 600;
+  text-wrap: balance;
+}
+.wz-text small {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+.wz-text .wz-big {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.wz-aside {
+  flex: none;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.wz-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--c) 24%, #fff);
+  color: color-mix(in srgb, var(--c) 78%, #000);
+}
+.wz-mark .symbol {
+  width: 22px;
+  height: 22px;
+}
+.wz-check {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  fill: none;
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.25s var(--ease),
+    transform 0.4s var(--ease);
+}
+.wz-opt.is-tile .wz-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.wz-check circle {
+  fill: var(--c);
+}
+.wz-check path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+}
+.wz-opt.is-active .wz-check {
+  opacity: 1;
+  transform: none;
+}
+.wz-opt.is-active .wz-check path {
+  animation: wz-draw 0.45s 0.1s var(--ease) forwards;
+}
+
+/* 確認画面 */
+.wz-summary {
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.wz-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 16px;
+  border: none;
+  border-bottom: 0.5px solid var(--line);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  animation: wz-rise 0.6s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 55ms + 120ms);
+  transition: background-color 0.2s var(--ease);
+}
+.wz-row:last-child {
+  border-bottom: none;
+}
+button.wz-row:hover {
+  background: var(--panel-hover);
+}
+.wz-row span {
+  flex: 1;
+  color: var(--muted);
+  font-size: 14px;
+}
+.wz-row b {
+  font-size: 16px;
+  font-weight: 600;
+}
+.wz-row i {
+  color: var(--faint);
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+}
+.wz-row.is-static {
+  cursor: default;
+}
+.wz-start {
+  animation:
+    wz-rise 0.6s 0.45s var(--ease) both,
+    wz-glow 2.8s 1.2s ease-in-out infinite;
+}
+.wz-start:disabled {
+  animation: none;
+}
+
+/* 難易度のタイル: 3列(スマホでも3列。ごく狭い画面だけ1列) */
+.wz-grid.is-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.wz-grid.is-three .wz-opt {
+  padding: 14px 12px;
+  gap: 12px;
+}
+.wz-grid.is-three .wz-text b {
+  font-size: 15.5px;
+}
+.wz-grid.is-three .wz-text small span {
+  display: block; /* 「。」ごとの短い行 */
+}
+.wz-grid.is-three .wz-aside {
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.wz-grid.is-three .wz-opt .wz-check {
+  top: 10px;
+  right: 10px;
+}
+@media (max-width: 359px) {
+  .wz-grid.is-three {
+    grid-template-columns: 1fr;
+  }
+}
+/* 段階メーター: 本数が多いほど、むずかしい */
+.wz-meter {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 22px;
+}
+.wz-meter i {
+  width: 7px;
+  border-radius: 3px;
+  background: var(--fill-2);
+  transition: background-color 0.3s var(--ease);
+}
+.wz-meter i:nth-child(1) {
+  height: 9px;
+}
+.wz-meter i:nth-child(2) {
+  height: 15px;
+}
+.wz-meter i:nth-child(3) {
+  height: 22px;
+}
+.wz-meter i.is-on {
+  background: var(--c);
+}
+/* 確認画面の、難易度の色の点 */
+.wz-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-right: -4px;
+  border-radius: 50%;
+}
+
+/* ---- ページが開いたときの入場アニメーション(学ぶ・チャレンジで共通) ----
+   見出しは右から滑り込み、そのあとに続く部品が、順番にふわっと現れる */
+.enter-slide {
+  animation: wz-in-forward 0.55s var(--ease) both;
+}
+.enter-rise {
+  animation: wz-rise 0.6s var(--ease) both;
+  /* チャレンジの選択肢と同じ間隔(45ms)。項目が多い一覧は、13個目以降は同時に現れる(待たせすぎない) */
+  animation-delay: calc(min(var(--i, 0), 12) * 45ms + 120ms);
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+@keyframes wz-in-forward {
+  from {
+    opacity: 0;
+    transform: translateX(44px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes wz-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-44px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes wz-out-forward {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-32px) scale(0.98);
+  }
+}
+@keyframes wz-out-back {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(32px) scale(0.98);
+  }
+}
+@keyframes wz-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes wz-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes wz-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--blue) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--blue) 18%, transparent);
+  }
 }
 
 /* =========================================================

@@ -17,8 +17,10 @@ ITの用語や仕組みを、図とアニメーションで学ぶ個人用の学
 
 - 外部のスクリプト・画像・フォント・通信は使わない(CSP が `'self'` だけを許可している。`vite.config.ts`)
 - `innerHTML` / `dangerouslySetInnerHTML` / `eval` / `new Function` / `fetch` / `window.open` / `location.href =` / `javascript:` は使わない(`npm run security-check` が検出して失敗にする)
-- localStorage は `weak.ts` / `progress.ts` だけで使い、読んだ値は必ず形と範囲を検査する
+- ブラウザへの保存(localStorage・Cookie など)は使わない(履歴機能は削除済み。`security-check` が検出する)
 - URL(ハッシュ)から受け取った値は、データの id と照らすだけにする(`router.ts` で長さと壊れた文字を処理済み)
+- 型チェックを無効にしない(`any` / `as never` / `@ts-ignore` は禁止。見張り番が検出する)
+- ユーザーの入力は、長さを必ず制限する(`Challenge.tsx` の `MAX_INPUT`)。入力欄の `maxLength` だけに頼らない
 - 依存ライブラリは、`^` なしの正確なバージョンで固定する(`.npmrc` の `save-exact`)。足すときは `npm audit` を確認する。インストールのスクリプトは止めてある
 - GitHub Actions は、タグではなく、コミットのハッシュで固定する(Dependabot が更新してくれる)
 - 公開前・大きな変更のあとは `npm run check` を通す
@@ -26,28 +28,24 @@ ITの用語や仕組みを、図とアニメーションで学ぶ個人用の学
 
 ## 画面と URL(ハッシュ方式、`src/router.ts`)
 
-- `#/` トップ(学ぶ / 苦手リスト) → `#/learn` 言語選択 → `#/言語` 項目一覧(必須 / 基礎 / 中級 / 応用) → `#/言語/項目` 中身のページ → `#/言語/項目/test` テスト
-- `#/challenge` チャレンジ(穴埋め・処理の説明)。カテゴリの項目の8割でテストが概ね正解(3問中2問以上)になると、そのカテゴリが解放される。`#/challenge/言語/fill|explain` で出題。結果は `src/progress.ts`
-- `#/weak` 苦手リスト(項目ページの ★ で手動登録。ブラウザの localStorage に保存。`src/weak.ts`)
+- 画面の上の**タブ**(学ぶ / チャレンジ)で切りかえる。トップページはない
+- `#/` 学ぶ(言語選択) → `#/言語` 項目一覧(必須 / 基礎 / 中級 / 応用) → `#/言語/項目` 中身のページ → `#/言語/項目/test` テスト
+- `#/challenge` チャレンジ。**質問を1つずつ答えるウィザード**(範囲 → モード(穴埋め入力 / 処理の説明を選ぶ) → 難易度(やさしい / ふつう / むずかしい) → 問題数(5 / 10 / 20 / 30) → 確認)。確認画面で、各項目をタップして直せる。範囲・モードはタイルのグリッド、難易度は色分け(緑・橙・赤)と段階メーターのタイル。質問の切りかえは iOS 風の押し出しアニメーション(`prefers-reduced-motion` では止まる)。学ぶ・チャレンジのページが開くときの入場アニメーションは共通(`.enter-slide` = 見出しの滑り込み、`.enter-rise` = 順番にふわっと現れる。`styles.css`)。設定は画面の中だけで持ち、保存しない
+- 履歴・進捗・苦手リストなど、**ブラウザに何かを保存する機能は持たない**(端末間の同期ができないため、あえて削除した。`security-check` が localStorage などの追加を検出する)
 
 ## 構成
 
 ```
 src/
   main.tsx              起動口(他サイトの iframe では表示しない・エラー画面で囲む)
-  App.tsx               URL を見て3つの画面を切り替える
+  App.tsx               上のタブと、URL に応じたページ
   router.ts             useRoute(今の URL)と href(リンク作成)
-  weak.ts               苦手の保存(localStorage + useWeak)
-  progress.ts           テスト結果の記録と、チャレンジの解放条件(localStorage)
-  challenge.ts          チャレンジの問題を、解説データ(コード+ステップの説明)から自動で作る
+  challenge.ts          チャレンジの問題を、解説データ(コード+ステップの説明)から自動で作る。難易度で、項目のレベルと問題の手ごたえが変わる
   useStepper.ts         ステップ送り(自動再生3秒・キー操作 ←→/Space)。2種類のページで共通
   pages/
-    Home.tsx            トップ(学ぶ / 苦手リスト)
-    WeakPage.tsx        苦手リスト(見る・テスト・解除)
-    ChallengeHome.tsx   チャレンジの入口(カテゴリごとの進み具合・解放)
-    ChallengePlay.tsx   チャレンジの出題(穴埋め入力 / 処理の説明を選ぶ)
+    Challenge.tsx       チャレンジ(設定ウィザード・穴埋め・処理の説明・結果)
     QuizPage.tsx        項目のテスト(4択 / 穴埋め / 両方。選択肢はシャッフル)
-    LanguageSelect.tsx  言語選択(分類の枠 → 言語 / ライブラリの小見出し → カード)
+    LanguageSelect.tsx  学ぶ: 言語選択(分類の枠 → 言語 / ライブラリの小見出し → カード)
     ItemList.tsx        項目一覧(レベル見出し・絞り込みチップ・準備中)。項目0件なら coming soon オーバーレイ
     TopicPage.tsx       図のページ(「APIの裏側」など)
     LessonPage.tsx      解説ページ(PHP / SQL。コード1行ずつ + 小さな図)
@@ -56,8 +54,8 @@ src/
     Icons.tsx           アイコンのSVG(phone / shield / server / database / browser / globe / lock / cloud / key / queue / balancer / mail)
     CodePanel.tsx       コード表示(1行ずつ増える・今の行を強調)
     Controls.tsx        操作バー(前へ・再生/一時停止・次へ・点)
-    StarButton.tsx      ★ 苦手に登録ボタン
     ErrorBoundary.tsx   描画中のエラーで真っ白にならず、案内を出す
+    TabBar.tsx          画面上のタブ(学ぶ / チャレンジ)
     LangSymbol.tsx      カードに出す線画アイコン(book / code / cylinder / shield など)
     LessonVisual.tsx    解説ページの小さな図(変数の箱・画面・表・矢印の流れ)
   data/

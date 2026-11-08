@@ -95,7 +95,6 @@ export type Kind = 'language' | 'library' | 'concept'
 /** カードに出す線画アイコンの名前(components/LangSymbol.tsx に絵があります) */
 export type SymbolName =
   | 'book'
-  | 'star'
   | 'network'
   | 'code'
   | 'palette'
@@ -112,7 +111,6 @@ export type SymbolName =
   | 'folder'
   | 'archive'
   | 'target'
-  | 'lock'
 
 /** 言語(またはテーマのまとまり)1つ分 */
 export interface Language {

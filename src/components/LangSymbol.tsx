@@ -13,8 +13,6 @@ const SYMBOLS: Record<SymbolName, ReactNode> = {
       <path d="M12 6.5V19" />
     </>
   ),
-  // 苦手リスト: 星
-  star: <path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z" fill="currentColor" />,
   // ITの仕組み: つながった3つの点
   network: (
     <>
@@ -112,13 +110,6 @@ const SYMBOLS: Record<SymbolName, ReactNode> = {
       <circle cx="12" cy="12" r="8.5" />
       <circle cx="12" cy="12" r="4.6" />
       <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
-    </>
-  ),
-  // ロック中: 錠前
-  lock: (
-    <>
-      <rect x="5" y="10.5" width="14" height="9.5" rx="2.4" />
-      <path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5" />
     </>
   ),
   // データベース運用(バックアップ): 下向き矢印のついた箱

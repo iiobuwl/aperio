@@ -2,8 +2,9 @@
 // 今の安全な状態が、将来の修正でうっかり崩れないように、次のことを自動で確かめます。
 //   1. ソースに、危険な書き方(innerHTML・eval・外部通信など)が入っていないか
 //   2. 依存ライブラリが、固定されていて、公式レジストリから取得されているか
-//   3. GitHub Actions が、コミットのハッシュで固定されているか
-//   4. ビルドした配布物の CSP が弱くなっていないか、読み込むファイルの指紋(SRI)が正しいか
+//   3. GitHub Actions が、コミットのハッシュで固定され、危険な設定(権限・注入・認証情報)がないか
+//   4. ビルドした配布物の CSP が弱くなっていないか、読み込むファイルの指紋(SRI)が正しいか、
+//      配布物の中に、想定外の外部ホストが現れていないか(依存ライブラリの乗っ取りの検知)
 // 1つでも問題があれば、失敗(終了コード 1)にします。事前に `npm run build` が必要です。
 
 import { createHash } from 'node:crypto'
@@ -39,9 +40,10 @@ const BANNED = [
   [/document\.cookie/, 'Cookie の直接操作'],
   [/window\.open|location\.(?:href|assign|replace)\s*(?:=|\()/, 'ページ遷移(オープンリダイレクトの元になりやすい)'],
   [/postMessage|addEventListener\s*\(\s*['"]message['"]/, 'postMessage(他のウィンドウとのやりとり)'],
+  [/\bas\s+any\b|\bas\s+never\b|\bas\s+unknown\s+as\b|:\s*any\b/, '型チェックを無効にする書き方(型の安全性を保つため禁止)'],
 ]
-const STORAGE = /\blocalStorage\b|\bsessionStorage\b|\bindexedDB\b/
-const STORAGE_ALLOWED = new Set(['src/weak.ts', 'src/progress.ts']) // 保存データの検査を、この2つに集めている
+// このサイトは、何も保存しない方針(履歴・進捗・Cookie なし)。保存機能を足すなら、読み込み時の検査もセットで設計して、この検査を見直す
+const STORAGE = /\blocalStorage\b|\bsessionStorage\b|\bindexedDB\b|\bcaches\b|serviceWorker|navigator\.storage/
 
 const sources = walk(join(root, 'src')).filter((p) => /\.(ts|tsx)$/.test(p) && !rel(p).startsWith('src/data/'))
 for (const file of sources) {
@@ -49,9 +51,11 @@ for (const file of sources) {
   readFileSync(file, 'utf8')
     .split('\n')
     .forEach((line, i) => {
-      const code = line.replace(/\/\/.*$/, '') // 行末のコメントは、見ない
+      // @ts-ignore などは、コメントの形で書くので、コメントも含めて検査する
+      if (/@ts-ignore|@ts-nocheck|@ts-expect-error/.test(line)) fail(`${path}:${i + 1}  型チェックを無効にするコメント(型の安全性を保つため禁止)`)
+      const code = line.replace(/\/\/.*$/, '') // 行末のコメントは、ほかの検査では見ない
       for (const [re, why] of BANNED) if (re.test(code)) fail(`${path}:${i + 1}  ${why}`)
-      if (STORAGE.test(code) && !STORAGE_ALLOWED.has(path)) fail(`${path}:${i + 1}  localStorage は weak.ts / progress.ts 以外では使わない(読み込み時の検査を集めているため)`)
+      if (STORAGE.test(code)) fail(`${path}:${i + 1}  ブラウザへの保存(localStorage など)は使わない方針`)
     })
 }
 
@@ -88,14 +92,24 @@ if (!/^ignore-scripts\s*=\s*true/m.test(npmrc)) fail('.npmrc: ignore-scripts=tru
 // ---------------------------------------------------------------------------
 // 3. GitHub Actions(コミットのハッシュで固定されているか)
 // ---------------------------------------------------------------------------
-for (const file of walk(join(root, '.github')).filter((p) => /\.ya?ml$/.test(p))) {
-  readFileSync(file, 'utf8')
-    .split('\n')
-    .forEach((line, i) => {
-      const m = line.match(/^\s*-?\s*uses:\s*(\S+)/)
-      if (!m || m[1].startsWith('./')) return
-      if (!/@[0-9a-f]{40}$/.test(m[1])) fail(`${rel(file)}:${i + 1}  ${m[1]} が、コミットのハッシュ(40桁)で固定されていない`)
-    })
+for (const file of walk(join(root, '.github')).filter((p) => /\.ya?ml$/.test(p) && /workflows/.test(p))) {
+  const text = readFileSync(file, 'utf8')
+  const lines = text.split('\n')
+  const name = rel(file)
+  lines.forEach((line, i) => {
+    const m = line.match(/^\s*-?\s*uses:\s*(\S+)/)
+    if (m && !m[1].startsWith('./') && !/@[0-9a-f]{40}$/.test(m[1])) fail(`${name}:${i + 1}  ${m[1]} が、コミットのハッシュ(40桁)で固定されていない`)
+    // 権限を広げる・外部の入力をコマンドに混ぜる書き方
+    if (/^\s*(?:pull_request_target|workflow_run)\s*:/.test(line)) fail(`${name}:${i + 1}  pull_request_target / workflow_run は、権限の乗っ取りに使われやすいので使わない`)
+    if (/github\.head_ref|github\.event\.(?:pull_request|issue|comment|head_commit|commits)/.test(line)) fail(`${name}:${i + 1}  外部から入力できる値(ブランチ名・タイトルなど)をワークフローで使っている(コマンド注入の恐れ)`)
+    // checkout は、認証情報を残さない
+    if (m && m[1].startsWith('actions/checkout@')) {
+      const next = lines.findIndex((l, k) => k > i && /^\s*-\s/.test(l))
+      const block = lines.slice(i, next === -1 ? lines.length : next).join('\n')
+      if (!/persist-credentials:\s*false/.test(block)) fail(`${name}:${i + 1}  actions/checkout に persist-credentials: false がない`)
+    }
+  })
+  if (!/^permissions:/m.test(text)) fail(`${name}: ワークフロー全体の permissions がない(最小権限を明示する)`)
 }
 
 // ---------------------------------------------------------------------------
@@ -148,6 +162,14 @@ if (!existsSync(join(dist, 'index.html'))) {
       if (!h.includes(`${name}:`)) fail(`dist/_headers: ${name} がない`)
     }
     if (!/frame-ancestors 'none'/.test(h)) fail("dist/_headers: frame-ancestors 'none' がない")
+  }
+
+  // 配布物の JS に含まれる URL のホストが、想定の範囲か
+  // (XML / SVG の名前空間・React のエラー案内・解説の例文だけ。新しいホストが現れたら、依存ライブラリの変更を疑う)
+  const ALLOWED_HOSTS = [/^www\.w3\.org$/, /^react\.dev$/, /(^|\.)example\.(com|org|net)$/, /^www\.googletagmanager\.com$/, /^app$/, /^localhost$/, /^203\.0\.113\.\d+$/]
+  for (const f of walk(join(dist, 'assets')).filter((p) => p.endsWith('.js'))) {
+    const hosts = new Set([...readFileSync(f, 'utf8').matchAll(/https?:\/\/([A-Za-z0-9.-]+)/g)].map((m) => m[1]))
+    for (const h of hosts) if (!ALLOWED_HOSTS.some((re) => re.test(h))) fail(`${rel(f)}: 想定外の外部ホスト「${h}」が含まれている(依存ライブラリの変更を確認する)`)
   }
 
   // ソースマップや、不要なファイルを公開していない

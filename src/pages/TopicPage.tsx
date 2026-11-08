@@ -7,18 +7,16 @@ import type { Topic } from '../data/types'
 import { Diagram } from '../components/Diagram'
 import { CodePanel } from '../components/CodePanel'
 import { Controls } from '../components/Controls'
-import { StarButton } from '../components/StarButton'
 import { STEP_MS, useStepper } from '../useStepper'
 
 interface Props {
   topic: Topic
   backHref: string // 「‹ 戻る」の行き先
   backLabel: string // 「‹ 戻る」に出す名前(例: 'ITの仕組み')
-  weakKey: string // 「苦手」に登録するときの名前(例: 'it/api')
   quizHref?: string // テストがある項目だけ渡す(「✎ この項目のテスト」のリンク先)
 }
 
-export function TopicPage({ topic, backHref, backLabel, weakKey, quizHref }: Props) {
+export function TopicPage({ topic, backHref, backLabel, quizHref }: Props) {
   const { index, playing, goTo, togglePlay } = useStepper(topic.steps.length)
   const reducedMotion = usePrefersReducedMotion()
   const step = topic.steps[index]
@@ -75,7 +73,6 @@ export function TopicPage({ topic, backHref, backLabel, weakKey, quizHref }: Pro
       <CodePanel label={topic.code.label} lines={topic.code.lines} shown={shownLines} current={step.code} currentTo={step.codeTo} tone={tone} />
 
       <div className="item-actions">
-        <StarButton weakKey={weakKey} />
         {quizHref && (
           <a className="quiz-link" href={quizHref}>
             ✎ この項目のテスト

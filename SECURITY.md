@@ -21,7 +21,8 @@ Aperio は、**サーバーを持たない静的な Web サイト**(Vite + React
 | **セキュリティヘッダー** | `X-Content-Type-Options` `Referrer-Policy` `Permissions-Policy`(使わない機能をすべて禁止) `Cross-Origin-Opener/Embedder/Resource-Policy` `HSTS` など(`vite.config.ts`、`dist/_headers`) |
 | **埋め込み禁止** | 他のサイトの `<iframe>` に入れない(`frame-ancestors` / `X-Frame-Options` / 画面側の検査) |
 | **失敗しても安全** | 予想外のエラーでも、真っ白にならず案内を出す。エラーの詳しい内容は、画面に出さない |
-| **URL と保存データの検査** | 壊れた URL でも落ちない。localStorage の中身は、読み込むたびに形と範囲を検査する(不正な値は無視) |
+| **何も保存しない** | localStorage・Cookie・IndexedDB などを使わず、履歴や進捗を記録しません(`security-check` が、保存機能の追加を検出して失敗にします)。端末に個人の情報が残りません |
+| **URL と入力の検査** | 壊れた URL や、極端に長い URL でも落ちない。入力欄の文字数は、入力欄の上限と、受け取った値の切り詰めで二重に制限する。長い文字でも、画面の幅をはみ出さない |
 
 ### 開発・公開の流れでの防御(サプライチェーン)
 
@@ -33,13 +34,12 @@ Aperio は、**サーバーを持たない静的な Web サイト**(Vite + React
 | **Actions の固定** | GitHub Actions は、コミットのハッシュで固定(タグの付けかえで、中身をすりかえられない) |
 | **最小権限の CI** | ワークフローの権限は、読み取りが基本。認証情報を、あとのステップに残さない |
 | **コード解析** | CodeQL を毎週と、プルリクエストごとに実行。OpenSSF Scorecard で、リポジトリの安全性を採点 |
-| **見張り番** | `npm run security-check`: 危険な書き方・依存の固定・Actions の固定・配布物の CSP と SRI を、CI のたびに検査する。将来の修正で、うっかり弱めても気づける |
+| **見張り番** | `npm run security-check`: 危険な書き方・型チェックの無効化(`any` / `@ts-ignore`)・依存の固定・Actions の固定と危険な設定(`pull_request_target`・コマンド注入・権限・認証情報)・配布物の CSP と SRI・**配布物に想定外の外部ホストが現れていないか**(依存ライブラリの乗っ取りの検知)を、CI のたびに検査する。将来の修正で、うっかり弱めても気づける |
 | **厳格な TypeScript** | `strict` を有効にして、型の抜け穴を減らす |
 
 ## できないこと(限界)
 
-- 保存先は、ブラウザの localStorage です。**利用者本人が書きかえられる**ため、「テストの結果で解放されるチャレンジ」は、
-  学習の目安であって、セキュリティ上の制限ではありません。
+- このサイトは、何も保存しません。学習の履歴や進捗は残らず、端末間の同期もありません(そのぶん、プライバシー上は有利です)。
 - GitHub Pages では、HTTP ヘッダーを自由に足せません。CSP は `<meta>` で効きますが、`frame-ancestors` と HSTS は
   ヘッダーが必要です(HSTS は GitHub Pages 側が設定します)。ヘッダーを足せるホスティング(Netlify / Cloudflare Pages など)では、
   ビルドで出力される `dist/_headers` が使われます。

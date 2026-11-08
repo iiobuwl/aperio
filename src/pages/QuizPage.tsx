@@ -5,11 +5,9 @@
 // 問題はデータ(data/quizzes/)に「正解を先頭」で書いてあり、ここで選択肢をシャッフルします。
 
 import { Fragment, useEffect, useState, type CSSProperties } from 'react'
-import { record } from '../progress'
 import type { ChoiceQ, FillQ, Item, Language, Quiz } from '../data/types'
 import { colorOf } from '../data/languages'
 import { highlight } from '../components/CodePanel'
-import { StarButton } from '../components/StarButton'
 import { href } from '../router'
 
 type Mode = 'choice' | 'fill' | 'both'
@@ -248,10 +246,6 @@ function Result({
   onRetry: () => void
 }) {
   const score = results.filter(Boolean).length
-  // 結果を記録する(いちばん良い結果だけが残る。チャレンジの解放に使われる)
-  useEffect(() => {
-    record(`${language.id}/${item.id}`, score, qs.length)
-  }, [language.id, item.id, score, qs.length])
   return (
     <section className="quiz-result">
       <p className="quiz-score">
@@ -275,10 +269,7 @@ function Result({
         ))}
       </ul>
 
-      {score < qs.length && <p className="quiz-hint">苦手だと感じたら、★で登録して、あとで見直せます。</p>}
-
       <div className="item-actions">
-        <StarButton weakKey={`${language.id}/${item.id}`} />
         <button type="button" className="quiz-link" onClick={onRetry}>
           もう一度
         </button>

@@ -25,7 +25,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: 
               window.location.reload()
             }}
           >
-            トップから読み込み直す
+            最初から読み込み直す
           </button>
         </section>
       </main>
