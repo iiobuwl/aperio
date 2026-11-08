@@ -12,8 +12,8 @@ import { STEP_MS, useStepper } from '../useStepper'
 
 interface Props {
   topic: Topic
-  backHref: string // 「← 戻る」の行き先
-  backLabel: string // 「← 戻る」に出す名前(例: 'ITの仕組み')
+  backHref: string // 「‹ 戻る」の行き先
+  backLabel: string // 「‹ 戻る」に出す名前(例: 'ITの仕組み')
   weakKey: string // 「苦手」に登録するときの名前(例: 'it/api')
   quizHref?: string // テストがある項目だけ渡す(「✎ この項目のテスト」のリンク先)
 }
@@ -30,7 +30,7 @@ export function TopicPage({ topic, backHref, backLabel, weakKey, quizHref }: Pro
       ? topic.requestColor
       : step.tone === 'response'
         ? topic.responseColor
-        : (topic.actors.find((a) => a.id === step.tone)?.color ?? '#f1f5f9')
+        : (topic.actors.find((a) => a.id === step.tone)?.color ?? 'var(--text)')
 
   // コード: ここまでのステップで出た一番大きい行番号まで表示
   const shownLines = Math.max(0, ...topic.steps.slice(0, index + 1).map((s) => s.codeTo ?? s.code ?? 0))
@@ -38,9 +38,9 @@ export function TopicPage({ topic, backHref, backLabel, weakKey, quizHref }: Pro
   const chips = topic.chips.filter((c) => (c.fromStep ?? 0) <= index)
 
   return (
-    <main className="page" style={{ '--tone': tone } as CSSProperties}>
+    <main className="page page-split" style={{ '--tone': tone } as CSSProperties}>
       <a className="back" href={backHref}>
-        ← {backLabel}
+        ‹ {backLabel}
       </a>
 
       {/* 1. タイトル */}

@@ -1,0 +1,21 @@
+# 依存ライブラリと GitHub Actions の更新・脆弱性の修正を、毎週、自動でプルリクエストにしてくれます。
+# Actions はハッシュで固定してあるので、新しい版が出ると、ハッシュも一緒に更新してくれます。
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    # 公開されたばかりの版は、7日待ってから提案する(乗っ取られた版が、すぐに入るのを避ける)
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7

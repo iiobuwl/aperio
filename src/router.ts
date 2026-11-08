@@ -25,10 +25,24 @@ export function href(...parts: string[]) {
   return '#/' + parts.map(encodeURIComponent).join('/')
 }
 
+// URL の部品として受け付ける最大の長さと数(それより長いものは、無視して切り捨てる)
+const MAX_PART_LENGTH = 64
+const MAX_PARTS = 4
+
+/** decodeURIComponent は、壊れた文字(例: %E0%A4%A)で例外を投げるので、そのときは元の文字のまま使う */
+function safeDecode(s: string): string {
+  try {
+    return decodeURIComponent(s)
+  } catch {
+    return s
+  }
+}
+
 function readHash() {
   return window.location.hash
     .replace(/^#\/?/, '')
     .split('/')
     .filter(Boolean)
-    .map(decodeURIComponent)
+    .slice(0, MAX_PARTS)
+    .map((p) => safeDecode(p.slice(0, MAX_PART_LENGTH * 3)).slice(0, MAX_PART_LENGTH))
 }

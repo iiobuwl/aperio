@@ -22,7 +22,7 @@ export interface Actor {
   id: string // ステップから指すための名前(例: 'app')
   label: string // 図の下に出る名前
   icon: IconKind
-  color: string // テーマ色(例: '#34d399')
+  color: string // テーマ色(例: 'var(--green)')
 }
 
 /** 上部に並ぶ小さなチップ */
@@ -92,12 +92,34 @@ export type GroupId = 'frontend' | 'backend' | 'database' | 'concept'
 /** 分類の中の小見出し(言語 / ライブラリ・フレームワーク / 仕組み) */
 export type Kind = 'language' | 'library' | 'concept'
 
+/** カードに出す線画アイコンの名前(components/LangSymbol.tsx に絵があります) */
+export type SymbolName =
+  | 'book'
+  | 'star'
+  | 'network'
+  | 'code'
+  | 'palette'
+  | 'bolt'
+  | 'typeT'
+  | 'atom'
+  | 'arrowCircle'
+  | 'sparkles'
+  | 'server'
+  | 'coffee'
+  | 'hash'
+  | 'cylinder'
+  | 'shield'
+  | 'folder'
+  | 'archive'
+  | 'target'
+  | 'lock'
+
 /** 言語(またはテーマのまとまり)1つ分 */
 export interface Language {
   id: string // URL に使う名前(例: 'php' → #/php)
   name: string // 表示名
   description: string // 主な用途
-  mark: string // カードの四角に出す短い文字(例: 'PHP')
+  symbol: SymbolName // カードの四角に出す絵(LangSymbol.tsx に描いてある)
   group: GroupId
   kind: Kind
   extensions?: string[] // 拡張子(例: ['.php'])

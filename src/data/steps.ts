@@ -5,10 +5,10 @@
 import type { Topic } from './types'
 
 // 登場人物の色(styles.css の色とそろえています)
-const GREEN = '#34d399' // アプリ
-const BLUE = '#60a5fa' // API
-const ORANGE = '#fb923c' // サーバー
-const RED = '#f87171' // データベース
+const GREEN = 'var(--green)' // アプリ
+const BLUE = 'var(--blue)' // API
+const ORANGE = 'var(--orange)' // サーバー
+const RED = 'var(--red)' // データベース
 
 const ALL = ['app', 'api', 'server', 'db']
 

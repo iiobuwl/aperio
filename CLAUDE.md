@@ -1,34 +1,51 @@
-# IT Visual
+# Aperio
 
-ITの用語や仕組みを、図とアニメーションで学ぶ個人用の学習サイト。
+ITの用語や仕組みを、図とアニメーションで学ぶ個人用の学習サイト。名前は、ラテン語の「開く・明らかにする」から(仕組みの裏側を開いて見る)。
 
 ## 方針
 
 - 個人用。公開・SEOは考えず、表示速度と操作感を最優先
 - Vite + React + TypeScript の SPA。ライブラリは増やさない(アニメは CSS / SVG / Web Animations API)
-- スマホ幅基準・最大幅600pxで中央寄せ。背景は濃紺、文字は白
-- 色: アプリ=緑、API=青、サーバー=橙、DB=赤(`src/styles.css` の `:root`)
+- スマホ幅基準・最大幅600pxで中央寄せ。デザインは Apple の HIG 風(余白・やわらかい角・すりガラス)。ライト/ダークは端末の設定に自動で合わせる
+- 広い画面: 720px以上で幅を広げ、1000px以上は「図と解説 | コード」の2列・カード一覧は2列(`styles.css` の `@media`、`.page-split` / `.page-narrow`)
+- 色: アプリ=緑、API=青、サーバー=橙、DB=赤。色は CSS 変数(`--green` など。`src/styles.css` の `:root`)で持ち、データ側(`data/`)も `'var(--green)'` のように変数名で書く
 - `prefers-reduced-motion` を守る
 - 利用者は初心者。コードには日本語のコメントを入れる
 - git 操作はしない(コミットは利用者が SourceTree で行う)
 
+## セキュリティの決まり(GitHub で公開するため。詳しくは SECURITY.md)
+
+- 外部のスクリプト・画像・フォント・通信は使わない(CSP が `'self'` だけを許可している。`vite.config.ts`)
+- `innerHTML` / `dangerouslySetInnerHTML` / `eval` / `new Function` / `fetch` / `window.open` / `location.href =` / `javascript:` は使わない(`npm run security-check` が検出して失敗にする)
+- localStorage は `weak.ts` / `progress.ts` だけで使い、読んだ値は必ず形と範囲を検査する
+- URL(ハッシュ)から受け取った値は、データの id と照らすだけにする(`router.ts` で長さと壊れた文字を処理済み)
+- 依存ライブラリは、`^` なしの正確なバージョンで固定する(`.npmrc` の `save-exact`)。足すときは `npm audit` を確認する。インストールのスクリプトは止めてある
+- GitHub Actions は、タグではなく、コミットのハッシュで固定する(Dependabot が更新してくれる)
+- 公開前・大きな変更のあとは `npm run check` を通す
+- 秘密情報(鍵・トークン・`.env`)を、リポジトリに入れない
+
 ## 画面と URL(ハッシュ方式、`src/router.ts`)
 
 - `#/` トップ(学ぶ / 苦手リスト) → `#/learn` 言語選択 → `#/言語` 項目一覧(必須 / 基礎 / 中級 / 応用) → `#/言語/項目` 中身のページ → `#/言語/項目/test` テスト
+- `#/challenge` チャレンジ(穴埋め・処理の説明)。カテゴリの項目の8割でテストが概ね正解(3問中2問以上)になると、そのカテゴリが解放される。`#/challenge/言語/fill|explain` で出題。結果は `src/progress.ts`
 - `#/weak` 苦手リスト(項目ページの ★ で手動登録。ブラウザの localStorage に保存。`src/weak.ts`)
 
 ## 構成
 
 ```
 src/
-  main.tsx              起動口
+  main.tsx              起動口(他サイトの iframe では表示しない・エラー画面で囲む)
   App.tsx               URL を見て3つの画面を切り替える
   router.ts             useRoute(今の URL)と href(リンク作成)
   weak.ts               苦手の保存(localStorage + useWeak)
+  progress.ts           テスト結果の記録と、チャレンジの解放条件(localStorage)
+  challenge.ts          チャレンジの問題を、解説データ(コード+ステップの説明)から自動で作る
   useStepper.ts         ステップ送り(自動再生3秒・キー操作 ←→/Space)。2種類のページで共通
   pages/
     Home.tsx            トップ(学ぶ / 苦手リスト)
     WeakPage.tsx        苦手リスト(見る・テスト・解除)
+    ChallengeHome.tsx   チャレンジの入口(カテゴリごとの進み具合・解放)
+    ChallengePlay.tsx   チャレンジの出題(穴埋め入力 / 処理の説明を選ぶ)
     QuizPage.tsx        項目のテスト(4択 / 穴埋め / 両方。選択肢はシャッフル)
     LanguageSelect.tsx  言語選択(分類の枠 → 言語 / ライブラリの小見出し → カード)
     ItemList.tsx        項目一覧(レベル見出し・絞り込みチップ・準備中)。項目0件なら coming soon オーバーレイ
@@ -40,13 +57,15 @@ src/
     CodePanel.tsx       コード表示(1行ずつ増える・今の行を強調)
     Controls.tsx        操作バー(前へ・再生/一時停止・次へ・点)
     StarButton.tsx      ★ 苦手に登録ボタン
+    ErrorBoundary.tsx   描画中のエラーで真っ白にならず、案内を出す
+    LangSymbol.tsx      カードに出す線画アイコン(book / code / cylinder / shield など)
     LessonVisual.tsx    解説ページの小さな図(変数の箱・画面・表・矢印の流れ)
   data/
     types.ts            型(Topic / Lesson / Language / Item / Level など)
     levels.ts           4レベルの表示名・色・説明
-    languages.ts        分類(GROUPS。ITの仕組みが先頭)・言語と項目の一覧。今は PHP と SQL のみ項目あり
-    quizzes/            テストの問題: php.ts・sql.ts・it.ts(1項目 = 4択2問 + 穴埋め1問。正解を先頭に書く)
-    lessons/            解説ページのデータ: php.ts(24項目)・sql.ts(23項目)・it.ts(URL・ステータスコード)・helpers.ts
+    languages.ts        分類(GROUPS。ITの仕組みが先頭)・言語と項目の一覧(約105項目)。項目の無い言語は coming soon
+    quizzes/            テストの問題: php.ts・php-extra.ts・sql.ts・it.ts・frontend.ts・infra.ts(1項目 = 4択2問 + 穴埋め1問。正解を先頭に書く)
+    lessons/            解説ページのデータ: php.ts・php-extra.ts・sql.ts・it.ts・frontend.ts(HTML/JS)・infra.ts(ITの仕組み追加・セキュリティ・ファイル処理・運用・DB運用)・helpers.ts
     steps.ts            「APIの裏側」の9ステップ
     topics/it.ts        「ITの仕組み」の図のページ(HTTP・DNS・HTTPS・Cookie・キャッシュ・CDN・ログイン・負荷分散・キュー)
   styles.css            色・レイアウト・アニメーション
@@ -54,7 +73,7 @@ src/
 
 ## 増やすとき
 
-- 言語や項目: `data/languages.ts` に書き足すだけ。`items: []` の言語は「coming soon...」、`topic` がない項目は「準備中」になる
+- 言語や項目: `data/languages.ts` に書き足すだけ(新しいカテゴリは、分類 `group` と `kind` を決めてカードを足す)。`items: []` の言語は「coming soon...」、`topic` がない項目は「準備中」になる
 - 解説ページ: `data/lessons/` に、項目の id と同じキーで `Lesson`(コード + ステップ)を書く。自動で結びつく
 - テスト: `data/quizzes/` に、項目の id と同じキーで `Quiz` を書く。選択肢は「正解を先頭」に書けば、画面で自動シャッフルされる
 - 図のページ: `data/topics/` に、項目の id と同じキーで `Topic` を書く(矢印は右向き・左向き、`color` で色を変えられる)
@@ -63,3 +82,4 @@ src/
 ## コマンド
 
 - `npm install` / `npm run dev`(開発) / `npm run build`(型チェック + ビルド)
+- `npm run security-check`(セキュリティの見張り番。先に build が必要) / `npm run check`(ビルド + 見張り番 + 脆弱性・署名の検査)

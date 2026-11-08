@@ -7,13 +7,13 @@
 
 import type { Actor, Topic } from '../types'
 
-const GREEN = '#34d399'
-const BLUE = '#60a5fa'
-const ORANGE = '#fb923c'
-const RED = '#f87171'
-const PURPLE = '#c084fc'
-const CYAN = '#22d3ee'
-const AMBER = '#fbbf24'
+const GREEN = 'var(--green)'
+const BLUE = 'var(--blue)'
+const ORANGE = 'var(--orange)'
+const RED = 'var(--red)'
+const PURPLE = 'var(--purple)'
+const CYAN = 'var(--teal)'
+const AMBER = 'var(--yellow)'
 
 const ids = (actors: Actor[]) => actors.map((a) => a.id)
 

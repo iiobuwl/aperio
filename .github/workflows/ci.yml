@@ -1,0 +1,49 @@
+# プッシュとプルリクエストのたびに、ビルドと、セキュリティの検査を行います。
+name: CI
+
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+
+# ワークフローに与える権限は、読み取りだけ(最小権限の原則)
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false # 認証情報を、あとのステップに残さない
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      # ロックファイルのとおりにだけ入れる。インストール時のスクリプトは動かさない
+      - run: npm ci --ignore-scripts
+      # 高い深刻度の脆弱性があれば失敗。レジストリの署名・出所(provenance)も検証する
+      - run: npm audit --audit-level=high
+      - run: npm audit signatures
+      - run: npm run build
+      # ソースの危険な書き方・依存の固定・Actions の固定・配布物の CSP と SRI を検査する
+      - run: npm run security-check
+
+  # プルリクエストで、新しく入る依存に、既知の脆弱性がないか調べる
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high

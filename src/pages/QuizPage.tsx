@@ -5,6 +5,7 @@
 // 問題はデータ(data/quizzes/)に「正解を先頭」で書いてあり、ここで選択肢をシャッフルします。
 
 import { Fragment, useEffect, useState, type CSSProperties } from 'react'
+import { record } from '../progress'
 import type { ChoiceQ, FillQ, Item, Language, Quiz } from '../data/types'
 import { colorOf } from '../data/languages'
 import { highlight } from '../components/CodePanel'
@@ -70,9 +71,9 @@ export function QuizPage({ language, item }: { language: Language; item: Item })
   })
 
   return (
-    <main className="page" style={{ '--tone': tone } as CSSProperties}>
+    <main className="page page-narrow" style={{ '--tone': tone } as CSSProperties}>
       <a className="back" href={href(language.id, item.id)}>
-        ← {item.name}
+        ‹ {item.name}
       </a>
 
       <header className="hero">
@@ -247,6 +248,10 @@ function Result({
   onRetry: () => void
 }) {
   const score = results.filter(Boolean).length
+  // 結果を記録する(いちばん良い結果だけが残る。チャレンジの解放に使われる)
+  useEffect(() => {
+    record(`${language.id}/${item.id}`, score, qs.length)
+  }, [language.id, item.id, score, qs.length])
   return (
     <section className="quiz-result">
       <p className="quiz-score">

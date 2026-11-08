@@ -25,9 +25,9 @@ export function LessonPage({ language, item }: { language: Language; item: Item 
   const shownLines = Math.max(0, ...lesson.steps.slice(0, index + 1).map((s) => s.codeTo ?? s.code ?? 0))
 
   return (
-    <main className="page" style={{ '--tone': tone } as CSSProperties}>
+    <main className="page page-split" style={{ '--tone': tone } as CSSProperties}>
       <a className="back" href={href(language.id)}>
-        ← {language.name}
+        ‹ {language.name}
       </a>
 
       <header className="hero">

@@ -10,8 +10,8 @@ export interface LevelInfo {
 }
 
 export const LEVELS: LevelInfo[] = [
-  { id: 'must', label: '必須', description: '絶対に覚えておく', color: '#f87171' },
-  { id: 'basic', label: '基礎', description: 'よく使う', color: '#34d399' },
-  { id: 'middle', label: '中級', description: '使いこなすと便利', color: '#60a5fa' },
-  { id: 'advanced', label: '応用', description: '必要になったら', color: '#c084fc' },
+  { id: 'must', label: '必須', description: '絶対に覚えておく', color: 'var(--red)' },
+  { id: 'basic', label: '基礎', description: 'よく使う', color: 'var(--green)' },
+  { id: 'middle', label: '中級', description: '使いこなすと便利', color: 'var(--blue)' },
+  { id: 'advanced', label: '応用', description: '必要になったら', color: 'var(--purple)' },
 ]

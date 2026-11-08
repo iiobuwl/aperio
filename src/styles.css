@@ -1,19 +1,104 @@
 /* =========================================================
    色の定義(ここを変えると全体の色が変わります)
    ========================================================= */
+/* ---- 色の定義 ----
+   画面の明るさ(ライト/ダーク)は、端末の設定に自動で合わせます。
+   色は Apple のシステムカラーを手本にしています。 */
 :root {
-  --bg: #0a0f1f; /* 背景: 黒に近い紺 */
-  --panel: #0f1629; /* 図やコードの下地 */
-  --line: rgba(148, 163, 184, 0.16); /* うすい枠線 */
-  --text: #f1f5f9; /* 文字: 白 */
-  --muted: #94a3b8; /* 補足の文字 */
-  --app: #34d399; /* アプリ: 緑 */
-  --api: #60a5fa; /* API: 青 */
-  --server: #fb923c; /* サーバー: 橙 */
-  --db: #f87171; /* データベース: 赤 */
+  color-scheme: light dark;
+
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Hiragino Sans',
+    'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
   --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
 
-  color-scheme: dark;
+  /* 面(ページの背景・カード・薄い塗り) */
+  --bg: #f5f5f7;
+  --panel: #ffffff;
+  --panel-hover: #fafafc;
+  --fill: rgba(120, 120, 128, 0.12);
+  --fill-2: rgba(120, 120, 128, 0.2);
+  --fill-soft: rgba(120, 120, 128, 0.07);
+  --line: rgba(60, 60, 67, 0.16);
+  --track: rgba(60, 60, 67, 0.28);
+
+  /* 文字 */
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --faint: #8e8e93;
+
+  /* 色(文字にも使えるよう、白地でも読める濃さにしてある) */
+  --blue: #0071e3;
+  --green: #248a3d;
+  --orange: #cc5f00;
+  --red: #d70015;
+  --purple: #8944ab;
+  --teal: #0a7ea4;
+  --yellow: #a66a00;
+
+  /* 登場人物の色: アプリ=緑、API=青、サーバー=橙、DB=赤 */
+  --app: var(--green);
+  --api: var(--blue);
+  --server: var(--orange);
+  --db: var(--red);
+
+  /* 影・光 */
+  --shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.06), 0 14px 32px rgba(0, 0, 0, 0.09);
+  --halo: 0.2;
+
+  /* コードの色分け(Xcode のライトテーマ風) */
+  --tk-comment: #6e7781;
+  --tk-string: #c41a16;
+  --tk-var: #6c36a9;
+  --tk-class: #1c6e7a;
+  --tk-func: #0f68a0;
+  --tk-keyword: #ad3da4;
+
+  /* 「ブラウザの画面」を模した部品(明暗に関わらず、白い窓) */
+  --mock-bg: #ffffff;
+  --mock-text: #1d1d1f;
+  --mock-bar: #f0f0f3;
+  --mock-dot: #c7c7cc;
+  --mock-empty: #8e8e93;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --panel: #1c1c1e;
+    --panel-hover: #2c2c2e;
+    --fill: rgba(120, 120, 128, 0.24);
+    --fill-2: rgba(120, 120, 128, 0.36);
+    --fill-soft: rgba(120, 120, 128, 0.14);
+    --line: rgba(255, 255, 255, 0.14);
+    --track: rgba(235, 235, 245, 0.28);
+
+    --text: #f5f5f7;
+    --muted: #a1a1a6;
+    --faint: #8e8e93;
+
+    --blue: #0a84ff;
+    --green: #30d158;
+    --orange: #ff9f0a;
+    --red: #ff453a;
+    --purple: #bf5af2;
+    --teal: #64d2ff;
+    --yellow: #ffd60a;
+
+    --shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+    --shadow-lg: 0 0 0 0.5px rgba(255, 255, 255, 0.16), 0 10px 30px rgba(0, 0, 0, 0.5);
+    --halo: 0.4;
+
+    --tk-comment: #7f8c98;
+    --tk-string: #fc6a5d;
+    --tk-var: #d0a8ff;
+    --tk-class: #5dd8ff;
+    --tk-func: #67b7ff;
+    --tk-keyword: #fc5fa3;
+
+    --mock-bar: #e5e5ea;
+    --mock-dot: #aeaeb2;
+  }
 }
 
 * {
@@ -25,8 +110,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family:
-    system-ui, -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-family: var(--font);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -71,7 +155,7 @@ body {
   padding: 4px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--fill-soft);
   font-size: 12px;
 }
 .chip-label {
@@ -102,7 +186,7 @@ body {
 /* 道筋(薄い点線) */
 .track path {
   fill: none;
-  stroke: rgba(148, 163, 184, 0.22);
+  stroke: var(--track);
   stroke-width: 1.5;
   stroke-dasharray: 3 5;
 }
@@ -150,7 +234,7 @@ body {
   transform-origin: 0 0; /* 円の中心を基準に拡大縮小する */
 }
 .actor-bg {
-  fill: var(--bg);
+  fill: var(--panel);
   stroke: currentColor;
   stroke-width: 1.5;
 }
@@ -159,7 +243,7 @@ body {
   transition: opacity 0.45s ease;
 }
 .actor.is-lit .halo {
-  opacity: 0.4;
+  opacity: var(--halo);
 }
 .actor-label {
   fill: currentColor;
@@ -198,7 +282,7 @@ body {
 
 /* バッジ */
 .badge rect {
-  fill: var(--bg);
+  fill: var(--panel);
   stroke: currentColor;
   stroke-width: 1.2;
 }
@@ -250,7 +334,7 @@ body {
 
 /* ---- 5. コードのパネル ---- */
 .code {
-  background: #070b16;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
@@ -272,7 +356,7 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(148, 163, 184, 0.3);
+  background: var(--fill-2);
 }
 .code-body {
   margin: 0;
@@ -306,26 +390,26 @@ body {
   width: 34px;
   padding-right: 12px;
   text-align: right;
-  color: rgba(148, 163, 184, 0.45);
+  color: var(--faint);
   user-select: none;
 }
 .tk-comment {
-  color: #64748b;
+  color: var(--tk-comment);
 }
 .tk-string {
-  color: #fcd34d;
+  color: var(--tk-string);
 }
 .tk-var {
-  color: #f9a8d4;
+  color: var(--tk-var);
 }
 .tk-class {
-  color: #5eead4;
+  color: var(--tk-class);
 }
 .tk-func {
-  color: #93c5fd;
+  color: var(--tk-func);
 }
 .tk-keyword {
-  color: #c4b5fd;
+  color: var(--tk-keyword);
 }
 .tk-op {
   color: var(--muted);
@@ -342,7 +426,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 10px 14px;
-  background: linear-gradient(to top, var(--bg) 70%, rgba(10, 15, 31, 0));
+  background: var(--bg);
 }
 .controls-buttons {
   display: flex;
@@ -366,7 +450,7 @@ body {
     transform 0.1s;
 }
 .btn:hover:not(:disabled) {
-  background: #18223b;
+  background: var(--fill);
 }
 .btn:active:not(:disabled) {
   transform: scale(0.94);
@@ -392,7 +476,7 @@ body {
   color: var(--bg);
 }
 .btn-play:hover:not(:disabled) {
-  background: #fff;
+  filter: brightness(1.08);
 }
 .btn-play svg {
   fill: currentColor;
@@ -424,14 +508,14 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.3);
+  background: var(--fill-2);
   overflow: hidden;
   transition:
     width 0.3s ease,
     background-color 0.3s;
 }
 .dot.is-past span {
-  background: rgba(148, 163, 184, 0.6);
+  background: var(--faint);
 }
 .dot.is-current span {
   width: 24px;
@@ -649,7 +733,7 @@ a {
   gap: 6px;
   padding: 24px;
   text-align: center;
-  background: rgba(10, 15, 31, 0.72);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   animation: fade-in 0.3s ease-out both;
@@ -692,7 +776,7 @@ a {
   transition: background-color 0.2s;
 }
 .overlay-back:hover {
-  background: #18223b;
+  background: var(--fill);
 }
 .overlay-back:focus-visible {
   outline: 2px solid var(--api);
@@ -710,7 +794,7 @@ a {
   padding: 6px 12px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--fill-soft);
   color: var(--muted);
   font: inherit;
   font-size: 12.5px;
@@ -874,7 +958,7 @@ a.item-card:active {
   padding: 10px 14px;
   border: 1.5px solid var(--tone);
   border-radius: 0 0 10px 10px;
-  background: var(--bg);
+  background: var(--panel);
   text-align: center;
   font-family: var(--mono);
   font-size: 16px;
@@ -885,21 +969,21 @@ a.item-card:active {
 .output {
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fff;
-  color: #0f172a;
+  background: var(--mock-bg);
+  color: var(--mock-text);
   overflow: hidden;
 }
 .output-bar {
   display: flex;
   gap: 5px;
   padding: 6px 10px;
-  background: #e2e8f0;
+  background: var(--mock-bar);
 }
 .output-bar i {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #94a3b8;
+  background: var(--mock-dot);
 }
 .output-body {
   min-height: 64px;
@@ -915,7 +999,7 @@ a.item-card:active {
   animation: fade-up 0.35s ease-out both;
 }
 .output-empty {
-  color: #94a3b8;
+  color: var(--mock-empty);
   font-size: 13px;
 }
 
@@ -947,7 +1031,7 @@ a.item-card:active {
 }
 .tbl td {
   padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--fill-soft);
   white-space: nowrap;
   transition:
     background-color 0.4s,
@@ -974,32 +1058,32 @@ a.item-card:active {
 }
 .tbl tr.is-hot td {
   background: color-mix(in srgb, var(--tone) 30%, transparent);
-  color: #fff;
+  color: var(--text);
   font-weight: 700;
 }
 .tbl tr.is-dim td {
   opacity: 0.28;
 }
 .tbl tr.is-new td {
-  background: color-mix(in srgb, #34d399 30%, transparent);
+  background: color-mix(in srgb, var(--green) 30%, transparent);
   animation: fade-up 0.45s ease-out both;
 }
 .tbl tr.is-edit td {
-  background: color-mix(in srgb, #fbbf24 28%, transparent);
+  background: color-mix(in srgb, var(--yellow) 28%, transparent);
 }
 .tbl tr.is-gone td {
-  background: color-mix(in srgb, #f87171 22%, transparent);
+  background: color-mix(in srgb, var(--red) 22%, transparent);
   text-decoration: line-through;
   opacity: 0.55;
 }
 .tbl tr.is-g1 td {
-  background: color-mix(in srgb, #60a5fa 24%, transparent);
+  background: color-mix(in srgb, var(--blue) 24%, transparent);
 }
 .tbl tr.is-g2 td {
-  background: color-mix(in srgb, #34d399 24%, transparent);
+  background: color-mix(in srgb, var(--green) 24%, transparent);
 }
 .tbl tr.is-g3 td {
-  background: color-mix(in srgb, #c084fc 24%, transparent);
+  background: color-mix(in srgb, var(--purple) 24%, transparent);
 }
 .tbl-empty td {
   text-align: center;
@@ -1017,7 +1101,7 @@ a.item-card:active {
   padding: 8px 12px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--fill-soft);
   font-family: var(--mono);
   font-size: 12.5px;
   opacity: 0.4;
@@ -1071,7 +1155,7 @@ a.item-card:active {
   padding: 8px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--fill-soft);
   color: var(--text);
   font: inherit;
   font-size: 13px;
@@ -1083,12 +1167,12 @@ a.item-card:active {
 }
 .star-btn:hover,
 .quiz-link:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: var(--fill-2);
 }
 .star-btn.is-on {
-  border-color: #fbbf24;
-  background: color-mix(in srgb, #fbbf24 14%, transparent);
-  color: #fbbf24;
+  border-color: var(--yellow);
+  background: color-mix(in srgb, var(--yellow) 14%, transparent);
+  color: var(--yellow);
   font-weight: 700;
 }
 .quiz-link {
@@ -1104,7 +1188,7 @@ a.item-card:active {
   outline-offset: 2px;
 }
 .item-star {
-  color: #fbbf24;
+  color: var(--yellow);
 }
 
 /* 苦手リストのカード */
@@ -1126,7 +1210,7 @@ a.item-card:active {
 .weak-tag {
   padding: 1px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--fill);
   font-size: 11px;
   color: var(--muted);
 }
@@ -1143,7 +1227,7 @@ a.item-card:active {
   padding: 6px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--fill-soft);
   color: var(--text);
   font: inherit;
   font-size: 12.5px;
@@ -1151,7 +1235,7 @@ a.item-card:active {
 }
 .weak-actions button {
   margin-left: auto;
-  color: #fbbf24;
+  color: var(--yellow);
 }
 
 /* ---- テスト ---- */
@@ -1239,7 +1323,7 @@ a.item-card:active {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--fill);
   font-family: var(--mono);
   font-size: 12px;
   color: var(--muted);
@@ -1252,15 +1336,15 @@ a.item-card:active {
   font-size: 13.5px;
 }
 .quiz-option.is-correct {
-  border-color: #34d399;
-  background: color-mix(in srgb, #34d399 14%, var(--panel));
-  color: #34d399;
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 14%, var(--panel));
+  color: var(--green);
   font-weight: 700;
 }
 .quiz-option.is-wrong {
-  border-color: #f87171;
-  background: color-mix(in srgb, #f87171 14%, var(--panel));
-  color: #f87171;
+  border-color: var(--red);
+  background: color-mix(in srgb, var(--red) 14%, var(--panel));
+  color: var(--red);
   animation: shake 0.35s ease-out;
 }
 .quiz-option.is-dim {
@@ -1275,12 +1359,12 @@ a.item-card:active {
   color: var(--text);
 }
 .blank.is-ok {
-  background: color-mix(in srgb, #34d399 24%, transparent);
-  box-shadow: inset 0 -2px 0 #34d399;
+  background: color-mix(in srgb, var(--green) 24%, transparent);
+  box-shadow: inset 0 -2px 0 var(--green);
 }
 .blank.is-ng {
-  background: color-mix(in srgb, #f87171 24%, transparent);
-  box-shadow: inset 0 -2px 0 #f87171;
+  background: color-mix(in srgb, var(--red) 24%, transparent);
+  box-shadow: inset 0 -2px 0 var(--red);
 }
 .quiz-why {
   padding: 12px 14px;
@@ -1300,10 +1384,10 @@ a.item-card:active {
   font-weight: 700;
 }
 .quiz-why.is-ok .quiz-verdict {
-  color: #34d399;
+  color: var(--green);
 }
 .quiz-why.is-ng .quiz-verdict {
-  color: #f87171;
+  color: var(--red);
 }
 .quiz-next {
   margin-top: 10px;
@@ -1354,10 +1438,10 @@ a.item-card:active {
   font-weight: 700;
 }
 .quiz-review li.is-ok .quiz-mark {
-  color: #34d399;
+  color: var(--green);
 }
 .quiz-review li.is-ng .quiz-mark {
-  color: #f87171;
+  color: var(--red);
 }
 .quiz-review-text {
   min-width: 0;
@@ -1373,6 +1457,647 @@ a.item-card:active {
   margin: 0;
   font-size: 12.5px;
   color: var(--muted);
+}
+
+/* =========================================================
+   広い画面(タブレット・PC)向けの配置
+   - 720px以上: 1列のまま、幅を広げる
+   - 1000px以上: 図と解説を左、コードを右に並べる。カード一覧は2列
+   ========================================================= */
+@media (min-width: 720px) {
+  .page {
+    max-width: 720px;
+    padding-top: 36px;
+  }
+  .step-note {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .page {
+    max-width: 1120px;
+    padding: 40px 32px 0;
+  }
+  /* テストは、広がっても読みやすい幅のまま */
+  .page.page-narrow {
+    max-width: 720px;
+  }
+
+  /* カード一覧(言語・項目・苦手リスト)は2列 */
+  .lang-list,
+  .item-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  /* 図のページ・解説ページ: 左に「図 + 見出し」、右に「コード」 */
+  .page.page-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto 1fr; /* 余った高さは、操作バーの手前に */
+    grid-template-areas:
+      'back    back'
+      'hero    hero'
+      'stage   code'
+      'caption code'
+      'actions actions'
+      'controls controls';
+    column-gap: 32px;
+    row-gap: 18px;
+    align-items: start;
+  }
+  .page-split > .back {
+    grid-area: back;
+    justify-self: start;
+  }
+  .page-split > .hero {
+    grid-area: hero;
+  }
+  .page-split > .stage {
+    grid-area: stage;
+  }
+  .page-split > .caption {
+    grid-area: caption;
+  }
+  .page-split > .code {
+    grid-area: code;
+  }
+  .page-split > .item-actions {
+    grid-area: actions;
+  }
+  .page-split > .controls {
+    grid-area: controls;
+    align-self: end;
+  }
+
+  /* 操作バーは、広がった余白ぶんだけ左右にはみ出して、画面の端までつなぐ */
+  .controls {
+    margin: auto -32px 0;
+    padding: 12px 32px calc(12px + env(safe-area-inset-bottom));
+  }
+
+  /* 広い画面では、コードも少し大きく */
+  .code-body {
+    font-size: 13.5px;
+  }
+}
+
+/* =========================================================
+   Aperio のデザイン
+   Apple の Human Interface Guidelines の考え方(余白・やわらかい角・すりガラス・
+   アプリアイコン風のマーク・ひかえめな影)に沿った見た目です。
+   ※ ここより上の部品の見た目を、あとから上書きしています。
+   ========================================================= */
+::selection {
+  background: color-mix(in srgb, var(--blue) 28%, transparent);
+}
+body {
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+}
+
+/* ---- 見出し: 大きく、太く、少しだけ詰める ---- */
+.hero h1 {
+  font-size: clamp(32px, 9vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.subtitle {
+  margin-top: 6px;
+  font-size: 14px;
+}
+.lead {
+  font-size: 16px;
+  color: var(--muted);
+}
+.step-title {
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* ---- ブランド(トップ) ---- */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.brand-icon {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 15px;
+}
+.brand h1 {
+  margin: 0;
+}
+.brand .lead {
+  margin: 4px 0 0;
+}
+
+/* ---- 戻るリンク: iOS のナビゲーション風 ---- */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: -6px 0 -4px -4px;
+  padding: 8px 4px;
+  font-size: 17px;
+  color: var(--blue);
+}
+.back:hover {
+  color: var(--blue);
+  opacity: 0.7;
+}
+
+/* ---- カード: 白い面・やわらかい角・ひかえめな影(枠線は使わない) ---- */
+.stage,
+.code,
+.lang-card,
+.item-card,
+.weak-card,
+.quiz-mode,
+.quiz-option,
+.quiz-why,
+.quiz-review li,
+.skeleton-card,
+.overlay-back {
+  background: var(--panel);
+  border: none;
+  box-shadow: var(--shadow);
+}
+.stage,
+.code {
+  border-radius: 20px;
+}
+.lang-card,
+.item-card,
+.weak-card,
+.quiz-mode,
+.quiz-option,
+.quiz-why,
+.quiz-review li {
+  border-radius: 16px;
+}
+.item-card.is-soon,
+.weak-card {
+  box-shadow: var(--shadow);
+}
+.lang-card:hover,
+a.item-card:hover,
+.quiz-mode:hover,
+.quiz-option:hover:not(:disabled) {
+  background: var(--panel-hover);
+  border-color: transparent;
+  box-shadow: var(--shadow-lg);
+}
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+}
+
+/* ---- 言語・分類: アプリアイコン風のマーク ---- */
+.lang-mark,
+.overlay-mark {
+  border: none;
+  border-radius: 22%;
+  /* パステルの単色: 分類の色を白でうすめた面に、濃いめの同じ色で絵を描く */
+  background: color-mix(in srgb, var(--c) 24%, #fff);
+  color: color-mix(in srgb, var(--c) 78%, #000);
+}
+.lang-mark {
+  width: 56px;
+  height: 56px;
+}
+.lang-mark .symbol {
+  width: 30px;
+  height: 30px;
+}
+.overlay-mark .symbol {
+  width: 36px;
+  height: 36px;
+}
+.lang-card.is-soon .lang-mark {
+  opacity: 0.5;
+}
+.lang-card {
+  padding: 14px 16px;
+}
+.lang-name {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.lang-count small,
+.home-meta {
+  color: var(--c);
+}
+
+/* 分類の枠は外して、見出しだけにする */
+.group {
+  border: none;
+  background: none;
+  border-radius: 0;
+  overflow: visible;
+}
+.group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px 6px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.group-head::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c);
+}
+.kind {
+  padding: 8px 0 4px;
+}
+.kind + .kind {
+  border-top: none;
+}
+.kind-head {
+  margin: 0 0 10px 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.kind-head span {
+  display: none;
+}
+.ext {
+  background: var(--fill);
+  color: var(--muted);
+}
+
+/* ---- 項目カード: 色の線ではなく、小さな色の点でレベルを示す ---- */
+.item-card {
+  padding: 14px 16px;
+}
+.item-card::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c);
+}
+.item-card.is-soon {
+  opacity: 0.55;
+}
+.item-name {
+  font-size: 15.5px;
+}
+.item-arrow {
+  color: var(--faint);
+  font-size: 22px;
+  line-height: 1;
+}
+.soon {
+  background: var(--fill);
+  border: none;
+}
+.level-label {
+  font-weight: 600;
+}
+
+/* ---- チップ・フィルター: 角丸のカプセル ---- */
+.chip {
+  border: none;
+  background: var(--fill);
+  color: var(--text);
+  padding: 5px 12px;
+}
+.chip.is-new {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.chip-label {
+  color: var(--muted);
+}
+.filter {
+  --c: var(--blue);
+  border: none;
+  background: var(--fill);
+  color: var(--text);
+  font-weight: 500;
+  padding: 7px 14px;
+}
+.filter:hover {
+  background: var(--fill-2);
+  color: var(--text);
+}
+.filter.is-active {
+  background: var(--c);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ---- 図・コード ---- */
+.stage {
+  padding: 10px 8px;
+}
+.stage-lesson {
+  padding: 18px 16px;
+}
+.code-head {
+  background: var(--fill-soft);
+  border-bottom: 0.5px solid var(--line);
+  font-size: 12px;
+  font-weight: 500;
+}
+.code-dots i {
+  background: var(--fill-2);
+}
+.code-body {
+  padding: 10px 0;
+}
+.code-line.is-current {
+  background: color-mix(in srgb, var(--tone) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--tone);
+}
+.output {
+  box-shadow: var(--shadow);
+  border: none;
+  border-radius: 12px;
+}
+.var-name {
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+}
+.chain-node {
+  border: none;
+  background: var(--fill);
+  opacity: 0.55;
+}
+.chain-node.is-on {
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+  box-shadow: inset 0 0 0 1px var(--tone);
+}
+.badge rect {
+  fill: var(--panel);
+  stroke-width: 1.4;
+}
+
+/* ---- 操作バー: すりガラス ---- */
+.controls {
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+  backdrop-filter: saturate(180%) blur(22px);
+  border-top: 0.5px solid var(--line);
+}
+.btn {
+  border: none;
+  background: var(--fill);
+  color: var(--text);
+}
+.btn:hover:not(:disabled) {
+  background: var(--fill-2);
+}
+.btn-play {
+  background: var(--blue);
+  color: #fff;
+}
+.dot.is-current span {
+  background: color-mix(in srgb, var(--tone) 28%, transparent);
+}
+
+/* ---- ボタン(★・テスト・次へ など) ---- */
+.star-btn,
+.quiz-link {
+  border: none;
+  background: var(--fill);
+  color: var(--text);
+  padding: 9px 16px;
+  font-weight: 500;
+}
+.star-btn.is-on {
+  background: color-mix(in srgb, var(--yellow) 16%, transparent);
+  color: var(--yellow);
+  box-shadow: inset 0 0 0 1px var(--yellow);
+}
+.quiz-link {
+  background: color-mix(in srgb, var(--tone, var(--blue)) 14%, transparent);
+  color: var(--tone, var(--blue));
+}
+.quiz-next {
+  background: var(--blue);
+  color: #fff;
+  padding: 11px 20px;
+}
+.weak-actions a,
+.weak-actions button {
+  border: none;
+  background: var(--fill);
+}
+.weak-tag {
+  background: var(--fill);
+}
+
+/* ---- テスト ---- */
+.quiz-option {
+  padding: 14px 16px;
+}
+.quiz-key {
+  background: var(--fill);
+}
+.quiz-option.is-correct {
+  background: color-mix(in srgb, var(--green) 14%, var(--panel));
+  box-shadow: inset 0 0 0 1.5px var(--green);
+}
+.quiz-option.is-wrong {
+  background: color-mix(in srgb, var(--red) 14%, var(--panel));
+  box-shadow: inset 0 0 0 1.5px var(--red);
+}
+.blank {
+  box-shadow: inset 0 -2px 0 var(--tone);
+}
+
+/* ---- coming soon のオーバーレイ ---- */
+.overlay {
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  backdrop-filter: saturate(180%) blur(28px);
+}
+.overlay-title {
+  letter-spacing: -0.02em;
+}
+.overlay-back {
+  color: var(--blue);
+  font-weight: 500;
+}
+
+/* ---- フォーカスの輪 ---- */
+.btn:focus-visible,
+.dot:focus-visible,
+.filter:focus-visible,
+.lang-card:focus-visible,
+.item-card:focus-visible,
+.back:focus-visible,
+.star-btn:focus-visible,
+.quiz-link:focus-visible,
+.quiz-option:focus-visible,
+.quiz-mode:focus-visible,
+.quiz-next:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--blue) 55%, transparent);
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   チャレンジ(解放式の穴埋め・説明テスト)
+   ========================================================= */
+.item-done {
+  color: var(--green);
+  font-weight: 700;
+}
+.ch-list {
+  gap: 12px;
+}
+.ch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.ch-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ch-state {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.ch-state .symbol {
+  width: 15px;
+  height: 15px;
+}
+.ch-state.is-open {
+  color: var(--green);
+}
+.ch-card.is-locked .lang-mark {
+  opacity: 0.5;
+}
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--fill);
+  overflow: hidden;
+}
+.progress span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--c);
+  transition: width 0.5s ease;
+}
+.ch-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.ch-hint a {
+  color: var(--blue);
+}
+.ch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ch-actions a {
+  flex: 1 1 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 15px;
+  transition: background-color 0.2s;
+}
+.ch-actions a:hover {
+  background: color-mix(in srgb, var(--c) 24%, transparent);
+}
+.ch-actions small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* 穴埋め(入力) */
+.fill-input {
+  box-sizing: content-box;
+  min-width: 3ch;
+  margin: 0 1px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+  box-shadow: inset 0 -2px 0 var(--tone);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+.fill-input:focus {
+  background: color-mix(in srgb, var(--tone) 26%, transparent);
+}
+.fill-review {
+  list-style: none;
+  margin: 6px 0 4px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.fill-review .is-ok {
+  color: var(--green);
+}
+.fill-review .is-ng {
+  color: var(--red);
+}
+
+/* 処理の説明(選択式): 見出しと補足の2行の選択肢 */
+.opt-explain {
+  align-items: flex-start;
+}
+.opt-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+.opt-title {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.opt-note {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.quiz-review-text small a {
+  color: var(--blue);
 }
 
 /* =========================================================

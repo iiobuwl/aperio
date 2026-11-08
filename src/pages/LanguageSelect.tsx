@@ -5,13 +5,14 @@
 import type { CSSProperties } from 'react'
 import type { Language } from '../data/types'
 import { GROUPS, KINDS } from '../data/languages'
+import { LangSymbol } from '../components/LangSymbol'
 import { href } from '../router'
 
 export function LanguageSelect({ languages }: { languages: Language[] }) {
   return (
     <main className="page">
       <a className="back" href={href()}>
-        ← トップ
+        ‹ トップ
       </a>
 
       <header className="hero">
@@ -58,7 +59,7 @@ function LanguageCard({ lang }: { lang: Language }) {
   return (
     <a className={soon ? 'lang-card is-soon' : 'lang-card'} href={href(lang.id)}>
       <span className="lang-mark" aria-hidden="true">
-        {lang.mark}
+        <LangSymbol name={lang.symbol} />
       </span>
       <span className="lang-text">
         {/* 名前の行: 左に名前、右に項目数(または coming soon) */}

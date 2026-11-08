@@ -287,6 +287,11 @@ export const PHP_LESSONS: Record<string, Lesson> = {
         code: 4,
         visuals: [chain(['<', '→', '&lt;']), { kind: 'output', lines: ['<script>alert(1)</script>'], label: '画面(安全)' }],
       },
+      {
+        title: 'CakePHP では h() が近道',
+        note: 'h() は htmlspecialchars の短い呼び名。画面に出す値には、いつも通す(XSS対策)',
+        visuals: [chain(['h($comment)', '=', 'htmlspecialchars($comment)'], [0, 2])],
+      },
     ],
   },
 

@@ -22,7 +22,7 @@ export function WeakPage() {
   return (
     <main className="page">
       <a className="back" href={href()}>
-        ← トップ
+        ‹ トップ
       </a>
 
       <header className="hero">

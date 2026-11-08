@@ -7,13 +7,16 @@ import { useState, type CSSProperties } from 'react'
 import type { Language, Level } from '../data/types'
 import { LEVELS } from '../data/levels'
 import { colorOf } from '../data/languages'
+import { LangSymbol } from '../components/LangSymbol'
 import { href } from '../router'
 import { useWeak } from '../weak'
+import { isPassed, useProgress } from '../progress'
 
 export function ItemList({ language }: { language: Language }) {
   // 絞り込み中のレベル。'all' ならすべて表示
   const [filter, setFilter] = useState<Level | 'all'>('all')
   const weak = useWeak() // 苦手に登録した項目には ★ をつける
+  const progress = useProgress() // テストで概ね正解できた項目には ✓ をつける
 
   if (language.items.length === 0) return <ComingSoon language={language} />
 
@@ -26,7 +29,7 @@ export function ItemList({ language }: { language: Language }) {
   return (
     <main className="page" style={{ '--c': colorOf(language) } as CSSProperties}>
       <a className="back" href={href('learn')}>
-        ← 言語を選ぶ
+        ‹ 言語を選ぶ
       </a>
 
       <header className="hero">
@@ -60,9 +63,14 @@ export function ItemList({ language }: { language: Language }) {
                 {item.topic || item.lesson ? (
                   // 中身があるものはリンク
                   <a className="item-card" href={href(language.id, item.id)}>
-                    <ItemText name={item.name} summary={item.summary} star={weak.includes(`${language.id}/${item.id}`)} />
+                    <ItemText
+                      name={item.name}
+                      summary={item.summary}
+                      star={weak.includes(`${language.id}/${item.id}`)}
+                      done={isPassed(progress[`${language.id}/${item.id}`])}
+                    />
                     <span className="item-arrow" aria-hidden="true">
-                      →
+                      ›
                     </span>
                   </a>
                 ) : (
@@ -81,11 +89,16 @@ export function ItemList({ language }: { language: Language }) {
   )
 }
 
-function ItemText({ name, summary, star = false }: { name: string; summary: string; star?: boolean }) {
+function ItemText({ name, summary, star = false, done = false }: { name: string; summary: string; star?: boolean; done?: boolean }) {
   return (
     <span className="item-text">
       <span className="item-name">
         {name}
+        {done && (
+          <span className="item-done" aria-label="テストで概ね正解">
+            {' ✓'}
+          </span>
+        )}
         {star && (
           <span className="item-star" aria-label="苦手に登録済み">
             {' ★'}
@@ -139,14 +152,14 @@ function ComingSoon({ language }: { language: Language }) {
 
       <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="coming-title">
         <p className="overlay-mark" aria-hidden="true">
-          {language.mark}
+          <LangSymbol name={language.symbol} />
         </p>
         <p id="coming-title" className="overlay-title">
           coming soon...
         </p>
         <p className="overlay-text">{language.name} の項目は準備中です</p>
         <a className="overlay-back" href={href('learn')}>
-          ← 言語を選ぶ
+          ‹ 言語を選ぶ
         </a>
       </div>
     </main>
