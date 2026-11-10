@@ -11,7 +11,7 @@ export function TabBar({ active }: { active: Tab }) {
     <header className="tabbar">
       <div className="tabbar-inner">
         <a className="tabbar-brand" href={href()} aria-label="Aperio(学ぶ)">
-          <img src="/favicon.svg" alt="" width="28" height="28" />
+          <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="28" height="28" />
           <span>Aperio</span>
         </a>
         <nav className="tabs" aria-label="メインメニュー">

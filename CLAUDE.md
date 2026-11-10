@@ -77,6 +77,12 @@ src/
 - 図のページ: `data/topics/` に、項目の id と同じキーで `Topic` を書く(矢印は右向き・左向き、`color` で色を変えられる)
 - 部品側にテーマ固有の内容を書かない(データと部品を分ける)
 
+## 公開(GitHub Pages)
+
+- `.github/workflows/deploy-pages.yml` が、main への push のたびに、ビルド → 検査 → 公開を行う。公開先は `https://ユーザー名.github.io/aperio/`
+- 公開先は `/aperio/` というフォルダの下なので、workflow が `BASE_PATH` で渡し、`vite.config.ts` の `base` に使う(普通のビルド・開発サーバーは `/` のまま)。画像などを指すときは `/favicon.svg` ではなく `import.meta.env.BASE_URL` を使う
+- GitHub Pages はヘッダーを足せないので、`_headers` は効かない。CSP は `<meta>` で効く(`frame-ancestors` などヘッダーだけの指令は効かず、`main.tsx` の枠組みチェックが代わりになる)
+
 ## コマンド
 
 - `npm install` / `npm run dev`(開発) / `npm run build`(型チェック + ビルド)

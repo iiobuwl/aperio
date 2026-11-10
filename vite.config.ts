@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, type Plugin, type ResolvedConfig } from 'vite'
 
 // ---------------------------------------------------------------------------
 // セキュリティヘッダーと、配布物の改ざん検知(SRI)
@@ -72,15 +72,20 @@ const HEADERS: Record<string, string> = {
 }
 
 function security(): Plugin {
+  let base = '/' // 公開先のフォルダ(GitHub Pages では「/aperio/」)。configResolved で受け取る
   return {
     name: 'aperio-security',
     apply: 'build',
+    configResolved(config: ResolvedConfig) {
+      base = config.base
+    },
     transformIndexHtml: {
       order: 'post',
       handler(html, ctx) {
         // 読み込む自分の JS / CSS に、中身の指紋(SRI: sha384)をつける
         const withSri = html.replace(/<(?:script|link)\b[^>]*?(?:src|href)="([^"]+)"[^>]*>/g, (tag, url: string) => {
-          const file = ctx.bundle?.[url.replace(/^\//, '')]
+          // 「/aperio/assets/x.js」のようにフォルダが付いていても、先頭の base を外して探す
+          const file = ctx.bundle?.[url.startsWith(base) ? url.slice(base.length) : url.replace(/^\//, '')]
           if (!file) return tag
           const data = file.type === 'chunk' ? file.code : file.source
           const hash = createHash('sha384').update(data).digest('base64')
@@ -105,6 +110,9 @@ function security(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
+  // 公開先のフォルダ。GitHub Pages では「/リポジトリ名/」で配信されるため、deploy の workflow が BASE_PATH で渡す。
+  // 普通のビルドや開発サーバーでは、今までどおり「/」
+  base: process.env.BASE_PATH ?? '/',
   plugins: [react(), security()],
   build: {
     sourcemap: false, // 元のコードを、公開しない

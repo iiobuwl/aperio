@@ -145,11 +145,11 @@ if (!existsSync(join(dist, 'index.html'))) {
 
   // SRI: 読み込むファイルすべてに指紋があり、実ファイルと一致する
   let sriCount = 0
-  for (const m of html.matchAll(/<(?:script|link)\b[^>]*?(?:src|href)="(\/assets\/[^"]+)"[^>]*>/g)) {
+  for (const m of html.matchAll(/<(?:script|link)\b[^>]*?(?:src|href)="([^"]*\/assets\/[^"]+)"[^>]*>/g)) {
     sriCount++
     const integrity = m[0].match(/integrity="sha384-([^"]+)"/)
     if (!integrity) { fail(`dist/index.html: ${m[1]} に integrity(SRI)がない`); continue }
-    const actual = createHash('sha384').update(readFileSync(join(dist, m[1]))).digest('base64')
+    const actual = createHash('sha384').update(readFileSync(join(dist, m[1].slice(m[1].indexOf('/assets/'))))).digest('base64')
     if (actual !== integrity[1]) fail(`dist/index.html: ${m[1]} の integrity が、実ファイルの指紋と合わない`)
   }
   if (sriCount === 0) fail('dist/index.html: 読み込むファイルが見つからない(検査できない)')

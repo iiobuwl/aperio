@@ -1,0 +1,57 @@
+# main に push されるたびに、サイトをビルドして GitHub Pages に載せます。
+# 公開先: https://(ユーザー名).github.io/aperio/
+# 事前に、リポジトリの Settings → Pages → Source を「GitHub Actions」にしておく必要があります。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Actions タブから、手動でも実行できる
+
+# ワークフロー全体の権限は、読み取りだけ。載せる作業(deploy ジョブ)にだけ、必要な権限を足す
+permissions:
+  contents: read
+
+# 同時に2つ載せない(古い方は待たせ、途中の載せ換えは止めない)
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      # 公開先は「/aperio/」というフォルダの下なので、ファイルの場所をそこに合わせてビルドする
+      - run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+      # 載せる前に、配布物のセキュリティ検査も通す(失敗したら、載せない)
+      - run: npm run security-check
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write # Pages に載せる
+      id-token: write # 載せる相手が GitHub 自身であることの確認(OIDC)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
